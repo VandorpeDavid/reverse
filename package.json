@@ -1,0 +1,32 @@
+{
+  "name": "express-reversify",
+  "version": "1.0.0",
+  "description": "Express extension for reverse routing",
+  "main": "reverse.js",
+  "scripts": { },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/benoitdevrieze/reverse.git"
+  },
+  "keywords": [
+    "express",
+    "reverse",
+    "routing",
+    "name",
+    "route",
+    "path",
+    "register",
+    "resolve"
+  ],
+  "author": "Benoit De Vrieze",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/benoitdevrieze/reverse/issues"
+  },
+  "homepage": "https://github.com/benoitdevrieze/reverse#readme",
+  "dependencies": {
+    "lodash": "^3.10.1",
+    "methods": "^1.1.1",
+    "path-to-regexp": "^1.2.1"
+  }
+}
