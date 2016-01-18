@@ -22,12 +22,17 @@ function construct() {
     });
   };
   
-  reverse.register = function register(name, path) {
+  reverse.register = function register(name, path, builder) {
     // validate parameters
     if (name === undefined)
       throw new Error('Required parameter "name" missing');
     if (path === undefined)
       throw new Error('Required parameter "path" missing');
+    if(builder === undefined) { // default builder
+      builder = function(config){
+        return config;
+      };
+    }
     // validate conditions
     if (this._namedroutes[name] !== undefined)
       throw new Error('Route with name "' + name + '" already defined');
@@ -38,10 +43,10 @@ function construct() {
       };
     }
     // add route to the dictionary
-    this._namedroutes[name] = { name: name, path: path };
+    this._namedroutes[name] = { name: name, path: path, builder: builder };
   };
 
-  reverse.resolve = function resolve(name, params) {
+  reverse.resolve = function resolve(name) {
     // validate parameters
     if (name === undefined)
       throw new Error('Required parameter "name" missing');
@@ -49,7 +54,7 @@ function construct() {
     if (this._namedroutes[name] === undefined)
       throw new Error('Route with name "' + name + '" not defined');
     // clean parameters
-    params = _.extend({}, params);
+    var params = builder.apply(this, [].slice.call(arguments,1));
     // look up route in dictionary
     var route = this._namedroutes[name];
     // evaluate path and build url
@@ -69,12 +74,12 @@ function construct() {
     
     options = _.extend({}, reverse.defaults, options);
 
-    router.define = function define(name) {
+    router.define = function define(name, builder) {
       // construct the route handler
       var route = construct_routehandler(this, name, options);
       // reverse register the route
       if (route.name !== undefined)
-        reverse.register(route.name, route.fullpath);
+        reverse.register(route.name, route.fullpath, builder);
       // construct the route handler
       return route;
     };
