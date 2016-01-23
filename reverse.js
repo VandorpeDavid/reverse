@@ -1,6 +1,7 @@
 var _ = require('lodash');
 var methods = require('methods');
 var pathtoregexp = require('path-to-regexp');
+var url = require('url');
 
 module.exports = construct(); // singleton
 
@@ -53,9 +54,9 @@ function construct() {
     // look up route in dictionary
     var route = this._namedroutes[name];
     // evaluate path and build url
-    var url = this.build(route.path(), params);
+    var link = this.build(route.path(), params);
     // return url
-    return url;
+    return link;
   };
 
   reverse.build = function build(path, params) {
@@ -139,7 +140,7 @@ function construct_routehandler(router, name, options) {
     parts = parts.filter(function(part) {
       return part;
     });
-    return parts.join('/');
+    return url.resolve(options.baseurl, parts.join('/'));
   };
   
   // bind fullpath resolver to route
