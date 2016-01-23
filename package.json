@@ -19,6 +19,7 @@
     "resolve"
   ],
   "author": "Benoit De Vrieze",
+  "contributors": [ "David Vandorpe" ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/benoitdevrieze/reverse/issues"
