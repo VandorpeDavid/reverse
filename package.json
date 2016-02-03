@@ -1,6 +1,6 @@
 {
   "name": "express-reversify",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Express extension for reverse routing",
   "main": "reverse.js",
   "scripts": { },
