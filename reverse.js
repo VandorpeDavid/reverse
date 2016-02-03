@@ -54,10 +54,10 @@ function construct() {
     // validate conditions
     if (this._namedroutes[name] === undefined)
       throw new Error('Route with name "' + name + '" not defined');
-    // clean parameters
-    var params = builder.apply(this, [].slice.call(arguments,1));
     // look up route in dictionary
     var route = this._namedroutes[name];
+    // clean parameters
+    var params = route.builder.apply(this, [].slice.call(arguments,1));
     // evaluate path and build url
     var link = this.build(route.path(), params);
     // return url
