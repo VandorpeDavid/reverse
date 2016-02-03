@@ -53,7 +53,7 @@ function construct() {
     // look up route in dictionary
     var route = this._namedroutes[name];
     // clean parameters
-    params = route.builder.apply(this, params);
+    params = route.builder(params);
     // evaluate path and build url
     var link = this.build(route.path(), params);
     // return url
