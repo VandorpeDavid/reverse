@@ -124,8 +124,6 @@ function construct_routehandler(router, name, options) {
   // fullpath resolver
   route.fullpath = function fullpath() {
     var parts = this.contextpath();
-    if (options.baseurl)
-      parts.unshift(options.baseurl);
     parts = parts.filter(function(part) {
       return part;
     });
