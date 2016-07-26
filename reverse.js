@@ -99,7 +99,7 @@ function construct() {
       callbacks.forEach(function(callback) {
         callback.contextpath = function() {
           if(! self.contextpath)
-            return options.baseurl + path;
+            return path;
           return self.contextpath() + path;
         }
       });
