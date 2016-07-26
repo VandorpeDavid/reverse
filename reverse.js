@@ -29,25 +29,21 @@ function construct() {
       throw new Error('Required parameter "name" missing');
     if (path === undefined)
       throw new Error('Required parameter "path" missing');
-    if(builder === undefined) { // default builder
-      builder = function(config){
-        return config;
-      };
-    }
     // validate conditions
     if (this._namedroutes[name] !== undefined)
       throw new Error('Route with name "' + name + '" already defined');
     // clean parameters
     if (typeof path !== 'function') {
-      path = function path() {
-        return path;
-      };
+      path = function path() { return path; };
+    }
+    if (builder === undefined) {
+      builder = function builder(params) { return params; };
     }
     // add route to the dictionary
     this._namedroutes[name] = { name: name, path: path, builder: builder };
   };
 
-  reverse.resolve = function resolve(name) {
+  reverse.resolve = function resolve(name, params) {
     // validate parameters
     if (name === undefined)
       throw new Error('Required parameter "name" missing');
@@ -57,7 +53,7 @@ function construct() {
     // look up route in dictionary
     var route = this._namedroutes[name];
     // clean parameters
-    var params = route.builder.apply(this, [].slice.call(arguments,1));
+    params = route.builder(params);
     // evaluate path and build url
     var link = this.build(route.path(), params);
     // return url
