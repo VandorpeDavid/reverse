@@ -30,6 +30,7 @@
   "dependencies": {
     "lodash": "^3.10.1",
     "methods": "^1.1.1",
-    "path-to-regexp": "^1.2.1"
+    "path-to-regexp": "^1.2.1",
+    "array-flatten": "1.1.1"
   }
 }

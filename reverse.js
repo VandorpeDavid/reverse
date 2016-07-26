@@ -2,6 +2,8 @@ var _ = require('lodash');
 var methods = require('methods');
 var pathtoregexp = require('path-to-regexp');
 var url = require('url');
+var slice = Array.prototype.slice;
+var flatten = require('array-flatten');
 
 module.exports = construct(); // singleton
 
@@ -22,7 +24,7 @@ function construct() {
       return { name: value.name, path: value.path() };
     });
   };
-  
+
   reverse.register = function register(name, path, builder) {
     // validate parameters
     if (name === undefined)
@@ -65,11 +67,45 @@ function construct() {
   };
 
   reverse.defaults = { baseurl: '/', strict: true };
-  
+
   // make reverse register available on routers
   reverse.integrate = function integrate(router, options) {
-    
+
     options = _.extend({}, reverse.defaults, options);
+
+    var use = router.use;
+    router.use = function(fn) {
+      var offset = 0;
+      var path = '/';
+
+      // default path to '/'
+      // disambiguate router.use([fn])
+      if (typeof fn !== 'function') {
+        var arg = fn;
+
+        while (Array.isArray(arg) && arg.length !== 0) {
+          arg = arg[0];
+        }
+
+        // first arg is the path
+        if (typeof arg !== 'function') {
+          offset = 1;
+          path = fn;
+        }
+      }
+
+      var callbacks = flatten(slice.call(arguments, offset));
+      var self = this;
+      callbacks.forEach(function(callback) {
+        callback.contextpath = function() {
+          if(! self.contextpath)
+            return options.baseurl + path;
+          return self.contextpath() + path;
+        }
+      });
+
+      return use.apply(this, arguments);
+    };
 
     router.define = function define(name, builder) {
       // construct the route handler
@@ -81,7 +117,7 @@ function construct() {
       return route;
     };
   };
-  
+
   // make reverse resolve available to views and controllers
   reverse.init = function init() {
     return function(req, res, next) {
@@ -98,7 +134,7 @@ function construct() {
 }
 
 function construct_routehandler(router, name, options) {
-  
+
   var route = {};
   // create router hook on route
   route.router = router;
@@ -118,7 +154,7 @@ function construct_routehandler(router, name, options) {
     else
       return [].concat(this.path);
   };
-  
+
   // bind contextpath resolver to route
   route.contextpath = route.contextpath.bind(route);
 
@@ -141,7 +177,7 @@ function construct_routehandler(router, name, options) {
     });
     return url.resolve(options.baseurl, parts.join('/'));
   };
-  
+
   // bind fullpath resolver to route
   route.fullpath = route.fullpath.bind(route);
 
@@ -173,7 +209,7 @@ function construct_routehandler(router, name, options) {
       return this.router[method].apply(this.router, arguments);
     };
   };
-  
+
   // create handlers on route for all methods
   for (var i = 1; i < methods.length; i = i + 1) {
     route._wrap(methods[i]);
@@ -181,6 +217,6 @@ function construct_routehandler(router, name, options) {
   route._wrap('all');
   route._wrap('use');
   route._wrap('route');
-  
+
   return route;
 }
