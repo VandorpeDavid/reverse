@@ -10,10 +10,12 @@ module.exports = construct(); // singleton
 module.exports.construct = construct;
 
 function construct() {
+  var _options;
 
   var reverse = function(express, options) {
     reverse.integrate(express.Router, options);
     reverse.integrate(express.application, options);
+    _options = options;
     return reverse;
   };
 
@@ -57,9 +59,14 @@ function construct() {
     // clean parameters
     params = route.builder(params);
     // evaluate path and build url
-    var link = this.build(route.path(req), params);
+    var link = this.build(route.path(), params);
+    // Get baseurl
+    var baseurl = _options.baseurl;
+    if(baseurl instanceof Function) {
+      baseurl = baseurl(req);
+    }
     // return url
-    return link;
+    return url.resolve(baseurl, link);
   };
 
   reverse.build = function build(path, params) {
@@ -161,7 +168,7 @@ function construct_routehandler(router, name, options) {
   route.contextpath = route.contextpath.bind(route);
 
   // fullpath resolver
-  route.fullpath = function fullpath(req) {
+  route.fullpath = function fullpath() {
     var parts = this.contextpath();
     parts = parts.filter(function(part) {
       return part;
@@ -177,11 +184,8 @@ function construct_routehandler(router, name, options) {
     parts = parts.filter(function(part) {
       return part;
     });
-    var baseurl = options.baseurl;
-    if(baseurl instanceof Function) {
-      baseurl = baseurl(req);
-    }
-    return url.resolve(baseurl, parts.join('/'));
+
+    return parts.join('/');
   };
 
   // bind fullpath resolver to route
