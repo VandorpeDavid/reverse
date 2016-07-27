@@ -123,7 +123,7 @@ function construct() {
     return function(req, res, next) {
       var resolve = reverse.resolve.bind(reverse);
       res.locals.resolve = function(name, params){
-        resolve(name, params, req);
+        return resolve(name, params, req);
       };
       res.resolveredirect = function resolveredirect(name, params) {
         return res.redirect(resolve(name, params, req));
