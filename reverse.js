@@ -45,7 +45,7 @@ function construct() {
     this._namedroutes[name] = { name: name, path: path, builder: builder };
   };
 
-  reverse.resolve = function resolve(name, params) {
+  reverse.resolve = function resolve(name, params, req) {
     // validate parameters
     if (name === undefined)
       throw new Error('Required parameter "name" missing');
@@ -57,7 +57,7 @@ function construct() {
     // clean parameters
     params = route.builder(params);
     // evaluate path and build url
-    var link = this.build(route.path(), params);
+    var link = this.build(route.path(req), params);
     // return url
     return link;
   };
@@ -122,9 +122,11 @@ function construct() {
   reverse.init = function init() {
     return function(req, res, next) {
       var resolve = reverse.resolve.bind(reverse);
-      res.locals.resolve = resolve;
+      res.locals.resolve = function(name, params){
+        resolve(name, params, req);
+      };
       res.resolveredirect = function resolveredirect(name, params) {
-        return res.redirect(resolve(name, params));
+        return res.redirect(resolve(name, params, req));
       };
       next();
     };
@@ -159,7 +161,7 @@ function construct_routehandler(router, name, options) {
   route.contextpath = route.contextpath.bind(route);
 
   // fullpath resolver
-  route.fullpath = function fullpath() {
+  route.fullpath = function fullpath(req) {
     var parts = this.contextpath();
     parts = parts.filter(function(part) {
       return part;
@@ -175,7 +177,11 @@ function construct_routehandler(router, name, options) {
     parts = parts.filter(function(part) {
       return part;
     });
-    return url.resolve(options.baseurl, parts.join('/'));
+    var baseurl = options.baseurl;
+    if(baseurl instanceof Function) {
+      baseurl = baseurl(req);
+    }
+    return url.resolve(baseurl, parts.join('/'));
   };
 
   // bind fullpath resolver to route
